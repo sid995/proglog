@@ -60,8 +60,13 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 	if in == -1 {
 		out = uint32((i.size / entWidth) - 1)
 	} else {
+		// Calculate the correct byte position
+		if uint64(in) >= i.size/entWidth {
+			return 0, 0, io.EOF
+		}
 		out = uint32(in)
 	}
+	pos = uint64(out) * entWidth
 	out = enc.Uint32(i.mmap[pos : pos+offWidth])
 	pos = enc.Uint64(i.mmap[pos+offWidth : pos+entWidth])
 	return out, pos, nil
